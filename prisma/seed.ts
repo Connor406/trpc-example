@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const firstPostId = '5c03994c-fc16-47e0-bd02-d218a370a078';
+  const firstAuthorId = '5c03994c-fc16-47e0-bd02-b218a370a07c';
   await prisma.post.upsert({
     where: {
       id: firstPostId,
@@ -17,6 +18,18 @@ async function main() {
       id: firstPostId,
       title: 'First Post',
       text: 'This is an example post generated from `prisma/seed.ts`',
+    },
+    update: {},
+  });
+
+  await prisma.author.upsert({
+    where: {
+      id: firstAuthorId,
+    },
+    create: {
+      id: firstAuthorId,
+      name: 'Doug McJenkins',
+      jobTitle: 'Author',
     },
     update: {},
   });

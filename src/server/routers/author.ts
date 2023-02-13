@@ -9,15 +9,15 @@ import { prisma } from '~/server/prisma';
  * It's important to always explicitly say which fields you want to return in order to not leak extra information
  * @see https://github.com/prisma/prisma/issues/9353
  */
-const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
+const defaultPostSelect = Prisma.validator<Prisma.AuthorSelect>()({
   id: true,
-  title: true,
-  text: true,
+  name: true,
+  jobTitle: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const postRouter = router({
+export const authorRouter = router({
   list: publicProcedure
     .input(
       z.object({
@@ -35,7 +35,7 @@ export const postRouter = router({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.post.findMany({
+      const items = await prisma.author.findMany({
         select: defaultPostSelect,
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
@@ -71,7 +71,7 @@ export const postRouter = router({
     )
     .query(async ({ input }) => {
       const { id } = input;
-      const post = await prisma.post.findUnique({
+      const post = await prisma.author.findUnique({
         where: { id },
         select: defaultPostSelect,
       });
@@ -87,12 +87,12 @@ export const postRouter = router({
     .input(
       z.object({
         id: z.string().uuid().optional(),
-        title: z.string().min(1).max(32),
-        text: z.string().min(1),
+        name: z.string().min(1).max(32),
+        jobTitle: z.string().min(1),
       }),
     )
     .mutation(async ({ input }) => {
-      const post = await prisma.post.create({
+      const post = await prisma.author.create({
         data: input,
         select: defaultPostSelect,
       });

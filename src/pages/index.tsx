@@ -9,7 +9,17 @@ const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useContext();
   const postsQuery = trpc.post.list.useInfiniteQuery(
     {
-      limit: 5,
+      limit: 3,
+    },
+    {
+      getPreviousPageParam(lastPage) {
+        return lastPage.nextCursor;
+      },
+    },
+  );
+  const authorQuery = trpc.author.list.useInfiniteQuery(
+    {
+      limit: 3,
     },
     {
       getPreviousPageParam(lastPage) {
@@ -24,14 +34,6 @@ const IndexPage: NextPageWithLayout = () => {
       await utils.post.list.invalidate();
     },
   });
-
-  // prefetch all posts for instant navigation
-  // useEffect(() => {
-  //   const allPosts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-  //   for (const { id } of allPosts) {
-  //     void utils.post.byId.prefetch({ id });
-  //   }
-  // }, [postsQuery.data, utils]);
 
   return (
     <>
@@ -64,16 +66,36 @@ const IndexPage: NextPageWithLayout = () => {
           : 'Nothing more to load'}
       </button>
 
-      {postsQuery.data?.pages.map((page, index) => (
-        <Fragment key={page.items[0]?.id || index}>
-          {page.items.map((item) => (
-            <article key={item.id}>
-              <h3>{item.title}</h3>
-              <Link href={`/post/${item.id}`}>View more</Link>
-            </article>
-          ))}
-        </Fragment>
-      ))}
+      <>
+        {postsQuery.data?.pages.map((page, index) => (
+          <Fragment key={page.items[0]?.id || index}>
+            {page.items.map((item) => (
+              <article key={item.id}>
+                <h3>{item.title}</h3>
+                <Link href={`/post/${item.id}`}>View more</Link>
+              </article>
+            ))}
+          </Fragment>
+        ))}
+      </>
+
+      <hr />
+      <h2>Authors</h2>
+      <>
+        {authorQuery.data?.pages.map((page, i) => {
+          console.log(page);
+          return (
+            <Fragment key={page.items[0]?.id || i}>
+              {page.items.map((item) => (
+                <article key={item.id}>
+                  <h3>{item.name}</h3>
+                  <Link href={`/author/${item.id}`}>View more</Link>
+                </article>
+              ))}
+            </Fragment>
+          );
+        })}
+      </>
 
       <hr />
 
